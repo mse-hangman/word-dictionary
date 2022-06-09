@@ -9,25 +9,27 @@ import java.util.Arrays;
 
 public class DataParsing {
     public static void main(String[] args) throws IOException, ParseException {
-        // Using BufferReader
-        BufferedReader reader = new BufferedReader(new FileReader("/Users/johyeongchan/MSEProject/hangman-server/hangman_dictionary.txt"));
-        String str;
-        ArrayList<String> arrayList = new ArrayList<>();
-        ArrayList<String> arrayListAfterRemove = new ArrayList<>();
+        // Read text file using BufferReader
+        BufferedReader reader = new BufferedReader(new FileReader("/Users/johyeongchan/MSEProject/word-dictionary/hangman_dictionary.txt"));
         System.out.println("Success file reading!");
 
+
         // Store each json type string to Arraylist
-        while((str = reader.readLine()) != null){
-            arrayList.add(str);
+        String jsonStringWithComma;
+        ArrayList<String> arrayList = new ArrayList<>();
+        ArrayList<String> arrayListAfterRemove = new ArrayList<>();
+
+        while((jsonStringWithComma = reader.readLine()) != null){
+            arrayList.add(jsonStringWithComma);
         }
         reader.close();
 
         // remove last "," in each json type string
-        for(int i =1; i < arrayList.size()-1; i++){
+        for(int i =1; i < 50; i++){
             char[] arr = arrayList.get(i).toCharArray();
-            char[] arr2 = Arrays.copyOfRange(arr, 0, arr.length-1);
-            String newString = new String(arr2);
-            arrayListAfterRemove.add(newString);
+            char[] arrDeleteComma = Arrays.copyOfRange(arr, 0, arr.length-1);
+            String jsonString = new String(arrDeleteComma);
+            arrayListAfterRemove.add(jsonString);
         }
         System.out.println("Success distinguishing each json type char array!");
         System.out.println("Success converting char array to Arraylist!");
@@ -35,13 +37,14 @@ public class DataParsing {
         // JSONObject
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        JSONObject jsonObjectEach = new JSONObject();
+        JSONObject jsonObjectBefore = new JSONObject(); // JSONObject before fit in format
+        JSONObject jsonObjectAfter = new JSONObject(); // JSONObject after fit in format
 
         // String to JSON
         JSONParser jsonParser = new JSONParser();
         for(int i =0; i<arrayListAfterRemove.size(); i++){
-            jsonObjectEach = (JSONObject) jsonParser.parse(arrayListAfterRemove.get(i));
-            jsonArray.add(jsonObjectEach);
+            jsonObjectBefore = (JSONObject) jsonParser.parse(arrayListAfterRemove.get(i));
+            addToJSONOArray(jsonArray, jsonObjectBefore, i);
         }
         System.out.println("Success adding JSONObject to JSONArray");
 
@@ -50,9 +53,24 @@ public class DataParsing {
         System.out.println("Success making JSON file from JSONArray!");
     }
 
+    // Method that distinguish word and add to jsonArray
+    public static void addToJSONOArray(JSONArray jsonArray, JSONObject jsonObjectBefore, int i){
+        JSONObject jsonObjectAfter = new JSONObject();
+        // If word's length is between 3 and 10, add to jsonArray
+        if(jsonObjectBefore.get("word").toString().length()>=3 && jsonObjectBefore.get("word").toString().length()<11){
+            jsonObjectAfter.put("id", i);
+            jsonObjectAfter.put("word", jsonObjectBefore.get("word"));
+            jsonObjectAfter.put("word_description", jsonObjectBefore.get("definition"));
+            jsonObjectAfter.put("hint", "no hint");
+            jsonObjectAfter.put("word_count", jsonObjectBefore.get("word").toString().length());
+            jsonArray.add(jsonObjectAfter);
+        }
+    }
+
     // Method that makes JSON file from JSONArray
     public static void makeJSONFile(JSONArray jsonArray) throws IOException {
-        String filePath = "/Users/johyeongchan/MSEProject/hangman-server/hangman.json";
+
+        String filePath = "/Users/johyeongchan/MSEProject/word-dictionary/hangman.json";
 
         File file = new File(filePath);
         if(!file.exists()){
@@ -61,10 +79,7 @@ public class DataParsing {
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
-        for(int i =0; i<jsonArray.size(); i++){
-            writer.write(jsonArray.get(i).toString());
-            writer.newLine();
-        }
+        writer.write(jsonArray.toJSONString());
         writer.flush();
         writer.close();
     }
