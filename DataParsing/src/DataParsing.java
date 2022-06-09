@@ -44,7 +44,7 @@ public class DataParsing {
         JSONParser jsonParser = new JSONParser();
         for(int i =0; i<arrayListAfterRemove.size(); i++){
             jsonObjectBefore = (JSONObject) jsonParser.parse(arrayListAfterRemove.get(i));
-            addToJSONOArray(jsonArray, jsonObjectBefore, i);
+            addToJSONArray(jsonArray, jsonObjectBefore, i);
         }
         System.out.println("Success adding JSONObject to JSONArray");
 
@@ -54,7 +54,7 @@ public class DataParsing {
     }
 
     // Method that distinguish word and add to jsonArray
-    public static void addToJSONOArray(JSONArray jsonArray, JSONObject jsonObjectBefore, int i){
+    public static void addToJSONArray(JSONArray jsonArray, JSONObject jsonObjectBefore, int i){
         JSONObject jsonObjectAfter = new JSONObject();
         // If word's length is between 3 and 10, add to jsonArray
         if(jsonObjectBefore.get("word").toString().length()>=3 && jsonObjectBefore.get("word").toString().length()<11){
@@ -69,16 +69,12 @@ public class DataParsing {
 
     // Method that makes JSON file from JSONArray
     public static void makeJSONFile(JSONArray jsonArray) throws IOException {
-
         String filePath = "/Users/johyeongchan/MSEProject/word-dictionary/hangman.json";
-
         File file = new File(filePath);
         if(!file.exists()){
             file.createNewFile();
         }
-
         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-
         writer.write(jsonArray.toJSONString());
         writer.flush();
         writer.close();
