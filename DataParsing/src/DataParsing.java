@@ -25,7 +25,7 @@ public class DataParsing {
         reader.close();
 
         // remove last "," in each json type string
-        for(int i =1; i < 50; i++){
+        for(int i =50; i < 1050; i++){
             char[] arr = arrayList.get(i).toCharArray();
             char[] arrDeleteComma = Arrays.copyOfRange(arr, 0, arr.length-1);
             String jsonString = new String(arrDeleteComma);
